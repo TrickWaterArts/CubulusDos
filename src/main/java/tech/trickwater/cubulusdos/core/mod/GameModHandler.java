@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.reflections.Reflections;
-import tech.trickwater.cubulusdos.core.CubulusDos;
+import tech.trickwater.cubulusdos.core.CoreGame;
 import tech.trickwater.cubulusdos.core.event.EventHandler;
 
 public class GameModHandler {
@@ -25,7 +25,7 @@ public class GameModHandler {
 		for (Class<? extends IGameMod> mod : loadedMods) {
 			IGameMod cMod = mod.newInstance();
 			if (cMod != null) {
-				CubulusDos.info("Loading: " + cMod.getName());
+				CoreGame.info("Loading: " + cMod.getName());
 				cMod.registerEvents(e);
 			}
 		}

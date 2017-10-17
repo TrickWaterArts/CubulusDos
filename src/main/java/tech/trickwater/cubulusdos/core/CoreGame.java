@@ -9,10 +9,12 @@ import tech.trickwater.cubulusdos.core.event.EventHandler;
 import tech.trickwater.cubulusdos.core.events.EventGameClose;
 import tech.trickwater.cubulusdos.core.events.EventGameConstruct;
 import tech.trickwater.cubulusdos.core.events.EventGameInitialization;
+import tech.trickwater.cubulusdos.core.events.EventLoopRender;
+import tech.trickwater.cubulusdos.core.events.EventLoopUpdate;
 import tech.trickwater.cubulusdos.core.mod.GameModHandler;
 import tech.trickwater.cubulusdos.core.window.GLFWWindow;
 
-public class CubulusDos {
+public class CoreGame {
 	
 	public static final SemVer VERSION = new SemVer(0, 0, 1);
 	private static final Logger log = LogManager.getLogger("Cubulus");
@@ -20,6 +22,7 @@ public class CubulusDos {
 	private GLFWWindow window;
 	private EventHandler eventHandler;
 	private GameModHandler modHandler;
+	private GameLoop gameLoop;
 	
 	public void onGameLaunch(String[] args) {
 		info("Game launching.");
@@ -31,9 +34,6 @@ public class CubulusDos {
 		info("Game loading.");
 		eventHandler.callEvent(new EventGameInitialization());
 		loop();
-		info("Game closing.");
-		eventHandler.callEvent(new EventGameClose());
-		cleanup();
 	}
 	
 	private void initMods() {
@@ -52,17 +52,35 @@ public class CubulusDos {
 		GLFWErrorCallback.createPrint(System.err).set();
 		if (!glfwInit()) {
 			error("GLFW error");
-			throw new IllegalStateException("Unable to initialize GLFW");
+			throw new IllegalStateException("Unable to initialize GLFW.");
 		}
 		window = new GLFWWindow().init().setTitle("Cubulus v" + VERSION.toString()).halfScreen().centerOnScreen();
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	
 	private void loop() {
-		glClearColor(1.0f, 0.75f, 0.50f, 0.0f);
-		while (!window.shouldWindowClose()) {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			window.update();
-			glfwPollEvents();
+		gameLoop = new GameLoop();
+		gameLoop.setOnUpdate(() -> update());
+		gameLoop.setOnRender((d) -> render(d));
+		gameLoop.setOnLoopExit(() -> {
+			info("Game closing.");
+			eventHandler.callEvent(new EventGameClose());
+			cleanup();
+		});
+		gameLoop.start();
+	}
+	
+	private void update() {
+		eventHandler.callEvent(new EventLoopUpdate());
+	}
+	
+	private void render(double delta) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		eventHandler.callEvent(new EventLoopRender(delta));
+		window.update();
+		glfwPollEvents();
+		if (window.shouldWindowClose()) {
+			gameLoop.stop();
 		}
 	}
 	

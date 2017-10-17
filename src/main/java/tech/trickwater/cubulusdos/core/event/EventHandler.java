@@ -2,7 +2,7 @@ package tech.trickwater.cubulusdos.core.event;
 
 import java.util.ArrayList;
 import java.util.List;
-import tech.trickwater.cubulusdos.core.CubulusDos;
+import tech.trickwater.cubulusdos.core.CoreGame;
 
 public class EventHandler {
 	
@@ -29,7 +29,7 @@ public class EventHandler {
 	
 	public void destroy() {
 		handles.clear();
-		CubulusDos.info("Destroying event handler.");
+		CoreGame.info("Destroying event handler.");
 	}
 	
 }

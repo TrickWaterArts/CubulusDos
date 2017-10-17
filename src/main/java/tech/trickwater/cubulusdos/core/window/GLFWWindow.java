@@ -10,7 +10,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
-import tech.trickwater.cubulusdos.core.CubulusDos;
+import tech.trickwater.cubulusdos.core.CoreGame;
 
 public class GLFWWindow {
 	
@@ -38,7 +38,7 @@ public class GLFWWindow {
 		
 		window = glfwCreateWindow(300, 300, title, NULL, NULL);
 		if (window == NULL) {
-			CubulusDos.error("GLFW window error");
+			CoreGame.error("GLFW window error");
 			throw new RuntimeException("GLFW window could not be created.");
 		}
 		
@@ -51,11 +51,11 @@ public class GLFWWindow {
 		glfwMakeContextCurrent(window);
 		caps = GL.createCapabilities();
 
-		CubulusDos.info("DETAILS:");
-		CubulusDos.info("\tLWJGL\t" + Version.getVersion());
-		CubulusDos.info("\tOpenGL\t" + glGetString(GL_VERSION));
-		CubulusDos.info("\tCubulus\t" + CubulusDos.VERSION.toString());
-		CubulusDos.info("GLFW window created.");
+		CoreGame.info("DETAILS:");
+		CoreGame.info("\tLWJGL\t" + Version.getVersion());
+		CoreGame.info("\tOpenGL\t" + glGetString(GL_VERSION));
+		CoreGame.info("\tCubulus\t" + CoreGame.VERSION.toString());
+		CoreGame.info("GLFW window created.");
 		
 		init = true;
 		return this;
@@ -69,7 +69,7 @@ public class GLFWWindow {
 	public GLFWWindow show() {
 		glfwSwapInterval(1);
 		glfwShowWindow(window);
-		CubulusDos.info("GLFW window shown.");
+		CoreGame.info("GLFW window shown.");
 		return this;
 	}
 	

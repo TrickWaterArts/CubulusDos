@@ -6,6 +6,8 @@ import tech.trickwater.cubulusdos.core.event.EventHandler;
 import tech.trickwater.cubulusdos.core.events.EventGameClose;
 import tech.trickwater.cubulusdos.core.events.EventGameConstruct;
 import tech.trickwater.cubulusdos.core.events.EventGameInitialization;
+import tech.trickwater.cubulusdos.core.events.EventLoopRender;
+import tech.trickwater.cubulusdos.core.events.EventLoopUpdate;
 import tech.trickwater.cubulusdos.core.mod.IGameMod;
 
 public class CubulusCore implements IGameMod {
@@ -31,6 +33,14 @@ public class CubulusCore implements IGameMod {
 			close();
 			getLogger().info("EventGameClose");
 		});
+		eventHandler.addListener(EventLoopUpdate.class, (e) -> {
+			update();
+			getLogger().info("EventLoopUpdate");
+		});
+		eventHandler.addListener(EventLoopRender.class, (e) -> {
+			render(((EventLoopRender) e).getDelta());
+			getLogger().info("EventLoopRender");
+		});
 		
 		getLogger().info("Registered events.");
 	}
@@ -51,6 +61,14 @@ public class CubulusCore implements IGameMod {
 	}
 	
 	private void close() {
+		
+	}
+	
+	private void update() {
+		
+	}
+	
+	private void render(double delta) {
 		
 	}
 	
