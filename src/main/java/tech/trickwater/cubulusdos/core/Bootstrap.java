@@ -1,4 +1,4 @@
-package tech.trickwater.cubulusdos;
+package tech.trickwater.cubulusdos.core;
 
 public class Bootstrap {
 	
