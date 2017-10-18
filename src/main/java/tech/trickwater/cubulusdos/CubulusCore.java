@@ -1,7 +1,5 @@
 package tech.trickwater.cubulusdos;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import tech.trickwater.cubulusdos.core.event.EventHandler;
 import tech.trickwater.cubulusdos.core.events.EventGameClose;
 import tech.trickwater.cubulusdos.core.events.EventGameConstruct;
@@ -10,66 +8,32 @@ import tech.trickwater.cubulusdos.core.events.EventLoopRender;
 import tech.trickwater.cubulusdos.core.events.EventLoopUpdate;
 import tech.trickwater.cubulusdos.core.mod.IGameMod;
 
-public class CubulusCore implements IGameMod {
+public class CubulusCore extends IGameMod {
 	
-	private Logger logger;
+	private static CubulusCore self;
+	
+	public CubulusCore() {
+		self = this;
+	}
 
 	public String getName() {
-		return "CubulusCore";
+		return "Cubulus";
 	}
 
 	public void registerEvents(EventHandler eventHandler) {
-		getLogger().info("Registering events...");
+		getLogger().info("Registering listeners...");
 		
-		eventHandler.addListener(EventGameConstruct.class, (e) -> {
-			construct();
-			getLogger().info("EventGameConstruct");
-		});
-		eventHandler.addListener(EventGameInitialization.class, (e) -> {
-			init();
-			getLogger().info("EventGameInitialization");
-		});
-		eventHandler.addListener(EventGameClose.class, (e) -> {
-			close();
-			getLogger().info("EventGameClose");
-		});
-		eventHandler.addListener(EventLoopUpdate.class, (e) -> {
-			update();
-			getLogger().info("EventLoopUpdate");
-		});
-		eventHandler.addListener(EventLoopRender.class, (e) -> {
-			render(((EventLoopRender) e).getDelta());
-			getLogger().info("EventLoopRender");
-		});
+		eventHandler.addListener(EventGameConstruct.class, (e) -> GameManager.construct());
+		eventHandler.addListener(EventGameInitialization.class, (e) -> GameManager.init());
+		eventHandler.addListener(EventGameClose.class, (e) -> GameManager.close());
+		eventHandler.addListener(EventLoopUpdate.class, (e) -> GameManager.update(((EventLoopUpdate) e).getDelta()));
+		eventHandler.addListener(EventLoopRender.class, (e) -> GameManager.render());
 		
-		getLogger().info("Registered events.");
+		getLogger().info("Registered core listeners.");
 	}
 	
-	public Logger getLogger() {
-		if (logger == null) {
-			logger = LogManager.getLogger("CubulusCore");
-		}
-		return logger;
-	}
-	
-	private void construct() {
-		
-	}
-	
-	private void init() {
-		
-	}
-	
-	private void close() {
-		
-	}
-	
-	private void update() {
-		
-	}
-	
-	private void render(double delta) {
-		
+	public static CubulusCore getInstance() {
+		return self;
 	}
 	
 }

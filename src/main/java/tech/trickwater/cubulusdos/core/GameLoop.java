@@ -2,22 +2,28 @@ package tech.trickwater.cubulusdos.core;
 
 public class GameLoop {
 	
-	// 1s = 1000000000ns
+	private final long NANO_PER_SEC = 1000000000L;
+	private final int TARGET_FPS = 60;
+	private final long TARGET_UPDATE_TIME = NANO_PER_SEC / TARGET_FPS;
+	private final int UPDATE_CAP = 320;
+	private final long MIN_FRAME_TIME = NANO_PER_SEC / UPDATE_CAP;
 	
 	private boolean running = false;
 	private Runnable exit;
-	private Runnable update;
-	private ILoopCall render;
+	private ILoopCall update;
+	private Runnable render;
 	
-	private int fps = 60;
-	private int trueFps;
-	private long start = System.nanoTime();
-	private long frameDuration = 1000000000L / fps;
-	private int lag;
+	private int fps = 0;
+	private int tmpFps = 0;
+	private long lastFpsTime = now();
+	private long lastLoopTime = now();
+	private long nextLoopTime = now() + MIN_FRAME_TIME;
 	
 	public void start() {
-		running = true;
-		initLoop();
+		if (!running) {
+			running = true;
+			initLoop();
+		}
 	}
 	
 	public void stop() {
@@ -26,17 +32,30 @@ public class GameLoop {
 	
 	private void initLoop() {
 		while (running) {
-			long current = System.nanoTime();
-			long elapsed = current - start;
-			start = current;
-			lag += elapsed;
-			while (lag >= frameDuration) {
-				update.run();
-				lag -= frameDuration;
+			nextLoopTime = now() + MIN_FRAME_TIME;
+			long now = now();
+			long updateLength = now - lastLoopTime;
+			lastLoopTime = now;
+			double delta = ((double) updateLength) / ((double) TARGET_UPDATE_TIME);
+			
+			update.run(delta);
+			render.run();
+			
+			tmpFps ++;
+			if (now - lastFpsTime >= NANO_PER_SEC) {
+				fps = tmpFps;
+				tmpFps = 0;
+				lastFpsTime = now;
 			}
-			double lagOffset = (double) lag / (double) frameDuration;
-			render.run(lagOffset);
-			trueFps = (int) Math.floor(1000000000D / (double) elapsed);
+			
+			while(now() < nextLoopTime) {
+				try {
+					Thread.sleep(1);
+				} catch(Exception e) {
+					CoreGame.error("Failed to sleep for loop.");
+					e.printStackTrace();
+				}
+			}
 		}
 		exit.run();
 	}
@@ -45,16 +64,20 @@ public class GameLoop {
 		this.exit = exit;
 	}
 	
-	public void setOnUpdate(Runnable update) {
+	public void setOnUpdate(ILoopCall update) {
 		this.update = update;
 	}
 	
-	public void setOnRender(ILoopCall render) {
+	public void setOnRender(Runnable render) {
 		this.render = render;
 	}
 	
 	public int getFps() {
-		return trueFps;
+		return fps;
+	}
+	
+	public long now() {
+		return System.nanoTime();
 	}
 	
 }

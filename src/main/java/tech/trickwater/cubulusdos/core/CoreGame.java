@@ -17,7 +17,12 @@ import tech.trickwater.cubulusdos.core.window.GLFWWindow;
 public class CoreGame {
 	
 	public static final SemVer VERSION = new SemVer(0, 0, 1);
-	private static final Logger log = LogManager.getLogger("Cubulus");
+	private static final Logger log = LogManager.getLogger("CORE");
+	private static final CoreGame INSTANCE;
+	
+	static {
+		INSTANCE = new CoreGame();
+	}
 	
 	private GLFWWindow window;
 	private EventHandler eventHandler;
@@ -60,8 +65,8 @@ public class CoreGame {
 	
 	private void loop() {
 		gameLoop = new GameLoop();
-		gameLoop.setOnUpdate(() -> update());
-		gameLoop.setOnRender((d) -> render(d));
+		gameLoop.setOnUpdate((d) -> update(d));
+		gameLoop.setOnRender(() -> render());
 		gameLoop.setOnLoopExit(() -> {
 			info("Game closing.");
 			eventHandler.callEvent(new EventGameClose());
@@ -70,13 +75,13 @@ public class CoreGame {
 		gameLoop.start();
 	}
 	
-	private void update() {
-		eventHandler.callEvent(new EventLoopUpdate());
+	private void update(double delta) {
+		eventHandler.callEvent(new EventLoopUpdate(delta));
 	}
 	
-	private void render(double delta) {
+	private void render() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		eventHandler.callEvent(new EventLoopRender(delta));
+		eventHandler.callEvent(new EventLoopRender());
 		window.update();
 		glfwPollEvents();
 		if (window.shouldWindowClose()) {
@@ -95,6 +100,10 @@ public class CoreGame {
 		return eventHandler;
 	}
 	
+	public int getFps() {
+		return gameLoop.getFps();
+	}
+	
 	public static void info(Object msg) {
 		String out = (msg == null) ? "null" : msg.toString();
 		log.info(out);
@@ -103,6 +112,10 @@ public class CoreGame {
 	public static void error(Object msg) {
 		String out = (msg == null) ? "null" : msg.toString();
 		log.error(out);
+	}
+	
+	public static CoreGame getInstance() {
+		return INSTANCE;
 	}
 	
 }
